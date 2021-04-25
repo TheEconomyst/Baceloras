@@ -1,8 +1,4 @@
-function MainPage()
-{
-    return (
-        <>
-        </>
-    );
+function MainPage() {
+  return <></>;
 }
 export default MainPage;
