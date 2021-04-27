@@ -26,6 +26,57 @@ var schema = buildSchema(`
       slaptazodis: String!
       id_sistemosnaudotojas: Int!
     }
+    scalar Date
+    type DarboGrafikas {
+      laikasnuo: Date
+      laikasiki: Date
+      pietupertrauka: Boolean
+      pietupertraukanuo: Date
+      pietupetraukaiki: Date
+      id_DarboGrafikas: Int!
+      rezervacijos: [Rezervacija]
+      paslaugosTeikejas: PaslaugosTeikejas!
+    }
+    type PaslaugosTeikejas {
+      aprasymas: String
+      role: Role
+      nuolaidos: [Nuolaida]
+      teikejopaslauga: [TeikejoPaslauga]
+      sistemosnaudotojas: SistemosNaudotojas
+      imone: Imone
+    }
+    type Imone {
+      pavadinimas: String
+      teikejai: [PaslaugosTeikejas]
+      paslaugos: [Paslauga]
+    }
+    type TeikejoPaslauga {
+      trukme: Int
+      kaina: Int
+      paslaugosteikejas: PaslaugosTeikejas
+      paslaugos: [Paslauga]
+    }
+    type Nuolaida {
+      procentas: Float
+      kodas: Int
+      galiojimoPradzia: Date
+      galiojimoPabaiga: Date
+      paslaugosteikejas: PaslaugosTeikejas
+    }
+    type Paslauga {
+      pavadinimas: String
+      trukme: Int
+      kaina: Int
+      araktyvi: Boolean
+    }
+    type Rezervacija {
+      sukurimodata: Date
+      busena: RezervacijosBusena
+    }
+    type RezervacijosBusena {
+      id: Int
+    }
+    
 `);
 
 async function getRoles() {
