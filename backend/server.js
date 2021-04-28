@@ -12,9 +12,15 @@ const conn = {
 var db = pgp(conn);
 
 var schema = buildSchema(`
+    type Mutation {
+      insertRole(id: Int): String
+    }
     type Query {
         roles: [Role]
         users: [SistemosNaudotojas]
+        role(id: ID): Role
+        user(id: ID): SistemosNaudotojas
+        teikejai: PaslaugosTeikejas
     }
     type Role {
       id_role: Int
@@ -76,13 +82,36 @@ var schema = buildSchema(`
     type RezervacijosBusena {
       id: Int
     }
-    
 `);
 
 async function getRoles() {
   let returnable = [];
   await db
     .any("SELECT * FROM role")
+    .then(function (data) {
+      returnable = data;
+    })
+    .catch(function (error) {});
+  return returnable;
+}
+
+async function getRole(id) {
+  let returnable = {};
+  await db
+    .one(`SELECT * FROM role WHERE id_role=${id}`)
+    .then(function (data) {
+      returnable = data;
+    })
+    .catch(function (error) {});
+  return returnable;
+}
+
+async function getTeikejai() {
+  let returnable = [];
+  await db
+    .any(
+      `SELECT * FROM paslaugosteikejas FULL JOIN imone ON paslaugosteikejas.fk_imoneid_imone=imone.id_imone FULL JOIN sistemosnaudotojas ON paslaugosteikejas.id_sistemosnaudotojas=sistemosnaudotojas.id_sistemosnaudotojas`
+    )
     .then(function (data) {
       returnable = data;
     })
@@ -100,6 +129,24 @@ async function getUsers() {
     .catch(function (error) {});
   return returnable;
 }
+async function getUser(id) {
+  let returnable = {};
+  await db
+    .one(`SELECT * FROM sistemosnaudotojas WHERE id_sistemosnaudotojas=${id}`)
+    .then(function (data) {
+      returnable = data;
+    })
+    .catch(function (error) {});
+  return returnable;
+}
+async function insertR(id) {
+  message = "";
+  await db
+    .query(`INSERT INTO role VALUES(${id})`)
+    .then(() => (message = "Success"))
+    .catch(() => (message = "Error"));
+  return message;
+}
 
 var root = {
   roles: () => {
@@ -107,6 +154,18 @@ var root = {
   },
   users: () => {
     return getUsers();
+  },
+  insertRole: ({ id }) => {
+    return insertR(id);
+  },
+  role: ({ id }) => {
+    return getRole(id);
+  },
+  user: ({ id }) => {
+    return getUser(id);
+  },
+  teikejai: () => {
+    return getTeikejai();
   },
 };
 
